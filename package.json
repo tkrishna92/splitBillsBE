@@ -1,0 +1,28 @@
+{
+  "name": "split-bills",
+  "version": "1.0.0",
+  "description": "REST API for split-bills application",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Krishna",
+  "license": "ISC",
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "body-parser": "^1.19.0",
+    "cookie-parser": "^1.4.4",
+    "country-list": "^2.2.0",
+    "country-telephone-code": "^0.2.0",
+    "express": "^4.17.1",
+    "helmet": "^3.21.2",
+    "jsonwebtoken": "^8.5.1",
+    "moment": "^2.24.0",
+    "moment-timezone": "^0.5.27",
+    "mongoose": "^5.8.3",
+    "pino": "^5.15.0",
+    "redis": "^2.8.0",
+    "shortid": "^2.2.15",
+    "socket.io": "^2.3.0"
+  }
+}
