@@ -7,6 +7,7 @@ let UserSchema = new Schema({
     firstName : {type : String, default : ''},
     lastName : {type : String, default : ''},
     email : {type : String, default : ''},
+    country : {type : String, default : ''},
     mobileNumber : {type : String, default : ''},
     createdOn : {type : String}
 })

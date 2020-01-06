@@ -31,10 +31,9 @@ let signup = (req,res)=>{
                     reject(apiResponse);
                 }else if(!validateInputParams.Password(req.body.password)){
                     logger.error("entered password does not meet requirements","userController : signup - validateInput", 9);
-                    let apiResponse = response.generate(true, "password must : be minimum 8 charectes which contain only characters, numeric digits, underscore", 500, null);
+                    let apiResponse = response.generate(true, "password must : be minimum 8 charectes which contain only characters, numeric digits, underscore", 400, null);
                     reject(apiResponse);
-                }else{
-                    logger.info("validate input success", "userController : signup - validateInput", 9);
+                }else{                    
                     resolve();
                 }
             }else{
@@ -60,6 +59,8 @@ let signup = (req,res)=>{
                         firstName : req.body.firstName,
                         lastName : req.body.lastName || '',
                         email : req.body.email,
+                        country : req.body.country,
+                        phoneCode : req.body.phoneCode,
                         mobileNumber : req.body.mobileNumber,
                         createdOn : Date.now()
                     })
@@ -69,7 +70,6 @@ let signup = (req,res)=>{
                             let apiResponse = response.generate(true, "internal db error: error saving new user", 500, err);
                             reject(apiResponse);
                         }else {
-                            logger.info("saved new user successfully", "userController : signup - createUser", 8);
                             let userDetails = result.toObject();
                             delete userDetails.password;
                             delete userDetails.__v;
@@ -90,6 +90,7 @@ let signup = (req,res)=>{
     validateInput()
         .then(createUser)
         .then((userDetails)=>{
+            logger.info("saved new user successfully", "userController : signup - createUser", 8);
             let apiResponse = response.generate(false, "user created successfully", 200, userDetails);
             res.send(apiResponse);
         })
@@ -141,6 +142,7 @@ let login = (req, res)=>{
                         delete userDetails.__v;
                         delete userDetails._id;
                         delete userDetails.createdOn;
+                        delete userDetails.country;
                         resolve(userDetails);
                     }else{
                         logger.error("incorrect password", "userController : login - checkPassword", 9);
@@ -165,7 +167,7 @@ let login = (req, res)=>{
                     let apiResponse = response.generate(true, "internal error : error while generating a new token", 500, err);
                     reject(apiResponse);
                 }else {
-                    logger.info("token generation success", "userController : login - generateToken", 9);
+                    
                     tokenDetails.userId = userDetails.userId;
                     tokenDetails.userDetails = userDetails;
                     resolve(tokenDetails);
@@ -236,12 +238,25 @@ let login = (req, res)=>{
         .catch((error)=>{
             res.send(error);
         })
+}
 
+let getCountryCode = (req, res)=>{
+    let apiResponse = response.generate(false, "country name-code list", 200, (countryList.getNames()));
+    res.send(apiResponse);    
+}
 
+let getCountryPhoneCode = (req, res)=>{
+    logger.info("country phone code requested", "userController : getCountryPhoneCode", 8);
+    let countryCode = countryList.getCode(req.body.countryName);
+    console.log(countryTelephoneCode(countryCode));
+    let apiResponse = response.generate(false, "country phone code list", 200, (countryTelephoneCode(countryCode)));
+    res.send(apiResponse);
 }
 
 
 module.exports = {
     signup : signup,
+    getCountryCode : getCountryCode,
+    getCountryPhoneCode : getCountryPhoneCode,
     login : login
 }
