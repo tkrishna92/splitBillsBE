@@ -104,7 +104,7 @@ let setRouter = (app) =>{
      * 
      */
 
-     //login
+    //login
     //params : email, password
     app.post(`${baseUrl}/login`, controller.login)
 
@@ -142,6 +142,128 @@ let setRouter = (app) =>{
         }
      * 
      */
+
+
+    //get single user details
+    //params : userId to be passed as body parameter,
+    //params : authToken to be passed as body, query or header parameter 
+    app.post(`${baseUrl}/getUserDetails`, auth.isAuthenticated, controller.getUserDetails)
+
+    /**
+     * @api {post} /users/getUserDetails get user details
+     * @apiVersion 1.0.0
+     * @apiGroup users
+     * 
+     * @apiParam {String} userId userId of the user the details are requested for to be passed as body parameter
+     * @apiParam {String} authToken authToken of the requestor to be passed as body, query or header parameter
+     * 
+     * @apiSuccessExample {json} Success-Response:
+     * {
+            "errorOccurred": false,
+            "message": "user details found",
+            "status": 200,
+            "data": {
+                "userId": "p_wJP6TV",
+                "firstName": "f1",
+                "lastName": "l1",
+                "email": "f1@somedomain.com",
+                "country": "India",
+                "mobileNumber": "+91 1234567890"
+            }
+        }
+     * 
+     * @apiErrorExample {json} Error-Response:
+     * {
+            "errorOccurred": true,
+            "message": "no user found for the given details",
+            "status": 404,
+            "data": null
+        }
+     * 
+     */
+
+    //get single user details
+    //params : authToken to be passed as body, query or header parameter 
+    //params : optional - firstName, lastName, email, mobileNumber, country can be passed as body parameters
+    //params : userId to be passed as body parameter
+    app.post(`${baseUrl}/editUser`, auth.isAuthenticated, controller.editUser)
+
+    /**
+     * @api {post} /users/getUserDetails get user details
+     * @apiVersion 1.0.0
+     * @apiGroup users
+     * 
+     * @apiParam {String} userId userId of the user the details are requested for to be passed as body parameter
+     * @apiParam {String} authToken authToken of the requestor to be passed as body, query or header parameter
+     * @apiParam {String} firstName optional can be passed as editing property as body parameter
+     * @apiParam {String} lastName optional can be passed as editing property as body parameter
+     * @apiParam {String} mobileNumber optional can be passed as editing property as body parameter
+     * @apiParam {String} email optional can be passed as editing property as body parameter
+     * 
+     * @apiSuccessExample {json} Success-Response:
+     * {
+            "errorOccurred": false,
+            "message": "updated successfully",
+            "status": 200,
+            "data": {
+                "n": 1,
+                "nModified": 1,
+                "ok": 1
+            }
+        }
+     * 
+     * @apiErrorExample {json} Error-Response:
+     * {
+            "errorOccurred": true,
+            "message": "no user found to update",
+            "status": 404,
+            "data": null
+        }
+     * 
+     */
+
+    //forgotPassword : this checks if the given email and mobile number belongs to the same account 
+    // and creates a two minute token for the front end to use in a link to edit password
+    //params : email, mobileNumber
+    app.post(`${baseUrl}/forgotPassword`, controller.forgotPassword)
+
+    /**
+     * @api {post} /users/forgotPassword forgot password
+     * @apiVersion 1.0.0
+     * @apiGroup users
+     * 
+     * @apiParam {String} email user's email to be passed as body parameter
+     * @apiParam {String} mobileNumber mobile number entered during the signup to be passed as body parameter
+     * 
+     * @apiSuccessExample {json} Success-Response:
+     * {
+            "errorOccurred": false,
+            "message": "details verified, proceed to change password",
+            "status": 200,
+            "data": {
+                "authToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqd3RpZCI6IjZhNTcxdHJkIiwiaWF0IjoxNTc4NDI1NTQ0OTExLCJleHAiOjE1Nzg0MjU2NjQsInN1YiI6ImF1dGhUb2tlbiIsImlzcyI6InNwbGl0QmlsbHMiLCJkYXRhIjp7InVzZXJJZCI6InBfd0pQNlRWIiwiZmlyc3ROYW1lIjoiZjEiLCJsYXN0TmFtZSI6ImwxIiwiZW1haWwiOiJmMUBzb21lZG9tYWluLmNvbSIsIm1vYmlsZU51bWJlciI6IiA5MSAxMjM0NTY3ODkwIn19.Me3y3F7iLi2ux8U2FKrk00z_JwJwsHAqccz22DxVIE0",
+                "userDetails": {
+                    "userId": "p_wJP6TV",
+                    "firstName": "f1",
+                    "lastName": "l1",
+                    "email": "f1@somedomain.com",
+                    "mobileNumber": " 91 1234567890"
+                }
+            }
+        }
+     * 
+     * @apiErrorExample {json} Error-Response:
+     * {
+            "errorOccurred": true,
+            "message": "please provide mobile number provided during signup",
+            "status": 400,
+            "data": null
+        }
+     * 
+     */
+
+
+
 }
 
 
