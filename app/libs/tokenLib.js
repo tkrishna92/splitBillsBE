@@ -28,7 +28,7 @@ let generateForgotPasswordToken = (data, cb)=>{
         let claims = {
             jwtid : shortId.generate(),
             iat : Date.now(),
-            exp : (Math.floor(Date.now()/1000)+(60*2)),
+            exp : (Math.floor(Date.now()/1000)+(3*60)),
             sub : 'authToken',
             iss : 'splitBills',
             data : data

@@ -262,6 +262,106 @@ let setRouter = (app) =>{
      * 
      */
 
+    //editPassword : this is used to edit user's password
+    //password : this takes the new password as a body parameter
+    app.post(`${baseUrl}/editPassword`, auth.isAuthenticated, controller.editPassword)
+
+    /**
+     * @api {post} /users/editPassword edit password
+     * @apiVersion 1.0.0
+     * @apiGroup users
+     * 
+     * @apiParam {String} authToken authToken of the requestor to be passed as a body, query or header parameter
+     * @apiParam {String} password new password of the user to be passed as a body parameter
+     * 
+     * @apiSuccessExample {json} Success-Response:
+     * {
+            "errorOccurred": false,
+            "message": "password update successful",
+            "status": 200,
+            "data": {
+                "n": 1,
+                "nModified": 1,
+                "ok": 1
+            }
+        }
+     * 
+     * @apiErrorExample {json} Error-Response:
+     * {
+            "errorOccurred": true,
+            "message": "invalid password entered : please enter minimum 8 charectes which contain only characters, numeric digits, underscore",
+            "status": 400,
+            "data": null
+        }
+     * 
+     *@apiErrorExample {json} Error-Response:
+     * {
+            "errorOccurred": true,
+            "message": "error verifying user's authentication details",
+            "status": 500,
+            "data": {
+                "name": "TokenExpiredError",
+                "message": "jwt expired",
+                "expiredAt": "2020-01-08T15:21:47.000Z"
+            }
+        }
+     * 
+     */
+
+     //getAllUsers : get all the users using application
+    app.get(`${baseUrl}/getAllUsers`, auth.isAuthenticated, controller.getAllUsers)
+
+    /**
+     * @api {post} /users/getAllUsers get all users
+     * @apiVersion 1.0.0
+     * @apiGroup users
+     * 
+     * @apiParam {String} authToken authToken of the requestor to be passed as a body, query or header parameter
+     * 
+     * @apiSuccessExample {json} Success-Response:
+     * {
+            "errorOccurred": false,
+            "message": "users found",
+            "status": 200,
+            "data": [
+                {
+                    "userId": "p_wJP6TV",
+                    "firstName": "f1",
+                    "lastName": "l1",
+                    "email": "f1@somedomain.com",
+                    "mobileNumber": " 91 1234567890",
+                    "country": "India"
+                },
+                {
+                    "userId": "LBoVC_eJ",
+                    "firstName": "f3",
+                    "lastName": "l3",
+                    "email": "f3@somedomain.com",
+                    "country": "India",
+                    "mobileNumber": " 91 1234567890"
+                },
+                {
+                    "userId": "12BS5-tX",
+                    "firstName": "f4",
+                    "lastName": "l4",
+                    "email": "f4@somedomain.com",
+                    "country": "India",
+                    "mobileNumber": " 91 1234567890"
+                }
+            ]
+        }
+     * 
+     * 
+     *@apiErrorExample {json} Error-Response:
+     * {
+            "errorOccurred": true,
+            "message": "User's authentication details not found",
+            "status": 404,
+            "data": null
+        }
+     * 
+     */
+
 
 
 }

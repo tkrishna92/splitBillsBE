@@ -431,6 +431,57 @@ let forgotPassword = (req, res) => {
         })
 }
 
+//edit password function
+let editPassword = (req, res)=>{
+    if(validateInputParams.Password(req.body.password)){
+            let updateObj = {
+                password : generatePassword.generatePassword(req.body.password)
+            }
+            userModel.update({userId : req.user.userId}, updateObj, {multi : true}, (err, result)=>{
+                if(err){
+                    logger.error("error while updating new password", "userController : editPassword", 9);
+                    let apiResponse = response.generate(true, "internal err : error while saving new password", 500, err);
+                    res.send(apiResponse);
+                }else if(result.n == 0){
+                    logger.error("user not found", "userController : editPassword", 9);
+                    let apiResponse = response.generate(true, "user not found to update password", 404, null);
+                    res.send(apiResponse);
+                }else {
+                    logger.info("password update successful", "userController : editPassword", 9);
+                    let apiResponse = response.generate(false, "password update successful", 200, result);
+                    res.send(apiResponse);
+                }
+            })
+    }else {
+        logger.error("invalid password received", "userController : editPassword", 9 );
+        let apiResponse = response.generate(true, "invalid password entered : please enter minimum 8 charectes which contain only characters, numeric digits, underscore", 400, null);
+        res.send(apiResponse);
+    }
+}
+
+//for getting all available users
+let getAllUsers = (req, res)=>{
+    userModel.find()
+    .select('-__v -_id -password -createdOn')
+    .sort('firstName')
+    .lean()
+    .exec((err, result)=>{
+        if(err){
+            logger.error("error retreiving users", "userController : getAllUsers", 9);
+            let apiResponse = response.generate(true, "internal err : error while trying to fetch all the users", 500, err);
+            res.send(apiResponse);
+        }else if(check.isEmpty(result)){
+            logger.error("no users found","userController : getAllUsers", 9);
+            let apiResponse = response.generate(true, "no users found", 404, null);
+            res.send(apiResponse);
+        }else{
+            logger.info("users found", "userController : getAllUsers", 7);
+            let apiResponse = response.generate(false, "users found", 200, result);
+            res.send(apiResponse);
+        }
+    })
+}
+
 
 module.exports = {
     signup: signup,
@@ -439,5 +490,7 @@ module.exports = {
     login: login,
     getUserDetails: getUserDetails,
     editUser: editUser,
-    forgotPassword: forgotPassword
+    forgotPassword: forgotPassword,
+    editPassword : editPassword,
+    getAllUsers : getAllUsers
 }
