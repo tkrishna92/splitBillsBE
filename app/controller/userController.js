@@ -407,7 +407,6 @@ let forgotPassword = (req, res) => {
                                 authToken: result.authToken,
                                 userDetails: tokenDetails.userDetails
                             }
-                            console.log(details);
                             resolve(details);
                         }
                     })
@@ -423,7 +422,6 @@ let forgotPassword = (req, res) => {
         .then((details) => {
             logger.info("two minute token generated successfully", "userController : forgotPassword", 8);
             let apiResponse = response.generate(false, "details verified, proceed to change password", 200, details);
-            console.log(apiResponse);
             res.send(apiResponse);
         })
         .catch((error) => {
@@ -482,6 +480,25 @@ let getAllUsers = (req, res)=>{
     })
 }
 
+// function to logout user
+let logout = (req, res)=>{
+    authModel.remove({userId : req.user.userId}, (err, result)=>{
+        if(err){
+            logger.error("error removing user details from auth document", "userController : logout", 9);
+            let apiResponse = response.generate(true, "error logging out", 500, err);
+            res.send(apiResponse);
+        }else if(result.n == 0){
+            logger.error("no user found to remove", "userController - logout", 9);
+            let apiResponse = response.generate(true, "user already logged out", 400, null);
+            res.send(apiResponse);
+        }else {
+            logger.info("user successfully logged out","userController - logout", 9);
+            let apiResponse = response.generate(false, "logout successful", 200, result);
+            res.send(apiResponse);
+        }
+    })
+}
+
 
 module.exports = {
     signup: signup,
@@ -492,5 +509,6 @@ module.exports = {
     editUser: editUser,
     forgotPassword: forgotPassword,
     editPassword : editPassword,
-    getAllUsers : getAllUsers
+    getAllUsers : getAllUsers,
+    logout : logout
 }

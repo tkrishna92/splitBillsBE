@@ -263,7 +263,7 @@ let setRouter = (app) =>{
      */
 
     //editPassword : this is used to edit user's password
-    //password : this takes the new password as a body parameter
+    //params : password : this takes the new password as a body parameter
     app.post(`${baseUrl}/editPassword`, auth.isAuthenticated, controller.editPassword)
 
     /**
@@ -309,6 +309,7 @@ let setRouter = (app) =>{
      */
 
      //getAllUsers : get all the users using application
+     //params : authToken : requires authToken of the requester to be passed as a body, query or header parameter
     app.get(`${baseUrl}/getAllUsers`, auth.isAuthenticated, controller.getAllUsers)
 
     /**
@@ -361,7 +362,40 @@ let setRouter = (app) =>{
         }
      * 
      */
+    
+    //logout : log out the user by deleting the user's authModel entry
+    //params : authToken : requires authToken of the user logging out to be passed as a body, query or header parameter
+    app.get(`${baseUrl}/logout`, auth.isAuthenticated, controller.logout)
 
+    /**
+     * @api {post} /users/getAllUsers get all users
+     * @apiVersion 1.0.0
+     * @apiGroup users
+     * 
+     * @apiParam {String} authToken authToken of the requestor to be passed as a body, query or header parameter
+     * 
+     * @apiSuccessExample {json} Success-Response:
+     * {
+            "errorOccurred": false,
+            "message": "logout successful",
+            "status": 200,
+            "data": {
+                "n": 1,
+                "ok": 1,
+                "deletedCount": 1
+            }
+        }
+     * 
+     * 
+     *@apiErrorExample {json} Error-Response:
+     * {
+            "errorOccurred": true,
+            "message": "User's authentication details not found",
+            "status": 404,
+            "data": null
+        }
+     * 
+     */
 
 
 }
