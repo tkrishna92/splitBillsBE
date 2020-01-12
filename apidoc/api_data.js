@@ -74,6 +74,13 @@ define({ "api": [
             "optional": false,
             "field": "authToken",
             "description": "<p>authToken to be passed as a body, header or query parameter</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "email",
+            "description": "<p>email of the user requesting the groups</p>"
           }
         ]
       }
@@ -127,8 +134,8 @@ define({ "api": [
             "group": "Parameter",
             "type": "String",
             "optional": false,
-            "field": "userId",
-            "description": "<p>userId of the user to be added to the group should be passed as body parameter</p>"
+            "field": "email",
+            "description": "<p>email of the user to be added to the group should be passed as body parameter</p>"
           }
         ]
       }
@@ -147,6 +154,54 @@ define({ "api": [
         {
           "title": "Error-Response:",
           "content": "{\n            \"errorOccurred\": true,\n            \"message\": \"group not found\",\n            \"status\": 404,\n            \"data\": null\n        }",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "app/route/group.js",
+    "groupTitle": "group",
+    "name": "PostGroupGetallgroupsofuser"
+  },
+  {
+    "type": "post",
+    "url": "/group/getAllGroupsOfUser",
+    "title": "get all groups of user",
+    "version": "1.0.0",
+    "group": "group",
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "authToken",
+            "description": "<p>authToken to be passed as a body, header or query parameter</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "groupId",
+            "description": "<p>groupId of the user requesting the groups</p>"
+          }
+        ]
+      }
+    },
+    "success": {
+      "examples": [
+        {
+          "title": "Success-Response:",
+          "content": "{\n            \"errorOccurred\": false,\n            \"message\": \"groups found\",\n            \"status\": 200,\n            \"data\": [\n                {\n                    \"groupUsers\": [\n                        \"p_wJP6TV\",\n                        \"LBoVC_eJ\",\n                        \"12BS5-tX\"\n                    ],\n                    \"groupCreatedOn\": \"2020-01-09T13:08:23.000Z\",\n                    \"groupName\": \"first group\",\n                    \"groupExpenses\": [],\n                    \"groupSettled\": false,\n                    \"groupId\": \"JRUhLJfP\",\n                    \"groupOwner\": \"LBoVC_eJ\"\n                },\n                ....\n                {\n                    \"groupUsers\": [\n                        \"p_wJP6TV\",\n                        \"LBoVC_eJ\",\n                        \"12BS5-tX\"\n                    ],\n                    \"groupCreatedOn\": \"2020-01-09T13:09:50.000Z\",\n                    \"groupName\": \"group 1\",\n                    \"groupExpenses\": [],\n                    \"groupSettled\": false,\n                    \"groupId\": \"WlGBT1T_\",\n                    \"groupOwner\": \"LBoVC_eJ\"\n                }\n            ]\n        }",
+          "type": "json"
+        }
+      ]
+    },
+    "error": {
+      "examples": [
+        {
+          "title": "Error-Response:",
+          "content": "{\n            \"errorOccurred\": true,\n            \"message\": \"User's authentication details not found\",\n            \"status\": 404,\n            \"data\": null\n        }",
           "type": "json"
         }
       ]

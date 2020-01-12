@@ -120,7 +120,7 @@ let addUserToGroup = (req, res)=>{
     let addUser = (groupDetails)=>{
         return new Promise((resolve, reject)=>{
             let existingUsers = groupDetails.groupUsers;
-            existingUsers.push(req.body.userId);
+            existingUsers.push(req.body.email);
             let updateObj = {
                 groupUsers : existingUsers
             }
@@ -153,7 +153,7 @@ let addUserToGroup = (req, res)=>{
 
 //get all groups
 let getAllGroupsOfUser = (req, res)=>{
-    groupModel.find({groupUsers : req.user.userId})
+    groupModel.find({groupUsers : req.body.email})
         .select('-__v -_id')
         .exec((err, result)=>{
             if(err){
@@ -170,6 +170,25 @@ let getAllGroupsOfUser = (req, res)=>{
                 res.send(apiResponse);
             }
         })   
+}
+
+// delete group
+let deleteGroup = (req, res)=>{
+    groupModel.remove({groupId : req.body.groupId}, (err, result)=>{
+        if(err){
+            logger.error("error while deleting group", "groupController : deleteGroup", 9);
+            let apiResponse = response.generate(true, "internal err : error while deleting the group", 500, err);
+            res.send(apiResponse);
+        }else if(result.n == 0){
+            logger.error("no group found", "groupController : deleteGroup", 9);
+            let apiResponse = response.generate(true, "group not found to delete", 404, null);
+            res.send(apiResponse);
+        }else {
+            logger.info("group deleted successfully", "groupController : deleteGroup", 9);
+            let apiResponse = response.generate(false, "group deleted successfully", 200, result);
+            res.send(apiResponse);
+        }
+    })
 }
 
 //get a group's detail
@@ -194,9 +213,32 @@ let getGroupDetails = (req, res)=>{
     })
 }
 
+//get all groups
+let getAllGroups = (req, res)=>{
+    groupModel.find()
+        .select('-__v -_id')
+        .exec((err, result)=>{
+            if(err){
+                logger.error("error while fetching users groups","groupController : getAllGroupsOfUser", 9);
+                let apiResponse = response.generate(true, "internal err : error while getting user's groups", 500, err);
+                res.send(apiResponse);
+            }else if(check.isEmpty(result)){
+                logger.error("no groups found for the user", "groupController : getAllGroupsOfUser", 9);
+                let apiResponse = response.generate(true, "no groups of user found", 404, null);
+                res.send(apiResponse);
+            }else {
+                logger.info("user groups found", "groupController : getAllGroupsOfUser", 9);
+                let apiResponse = response.generate(false, "groups found", 200, result);
+                res.send(apiResponse);
+            }
+        })   
+}
+
 module.exports = {
     createNewGroup : createNewGroup,
     addUserToGroup : addUserToGroup,
     getAllGroupsOfUser : getAllGroupsOfUser,
-    getGroupDetails : getGroupDetails
+    getGroupDetails : getGroupDetails,
+    getAllGroups : getAllGroups,
+    deleteGroup : deleteGroup
 }
