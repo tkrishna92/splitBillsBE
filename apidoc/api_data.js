@@ -1,6 +1,274 @@
 define({ "api": [
   {
     "type": "post",
+    "url": "/expense/createNewExpense",
+    "title": "create new expense",
+    "version": "1.0.0",
+    "group": "expense",
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "authToken",
+            "description": "<p>authToken to be passed as a body, header or query parameter</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "groupId",
+            "description": "<p>id of the group in which the expense has to be added to be passed as a body parameter</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "title",
+            "description": "<p>a short title for the expense to be passed as a body parameter</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "description",
+            "description": "<p>a description of the expense to be passed as a body paramter</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "Number",
+            "optional": false,
+            "field": "amount",
+            "description": "<p>the amount involved in the expense</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "paidBy",
+            "description": "<p>userId of the person who paid for the expense</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "involvedMembers",
+            "description": "<p>a string of userIds of the people involved in the expense</p>"
+          }
+        ]
+      }
+    },
+    "success": {
+      "examples": [
+        {
+          "title": "Success-Response:",
+          "content": "{\n            \"errorOccurred\": false,\n            \"message\": \"expense generated successfully\",\n            \"status\": 200,\n            \"data\": {\n                \"expenseDescription\": \"exp desc 1\",\n                \"expenseModifiedBy\": \"\",\n                \"expenseCreatedOn\": \"2020-01-13T17:40:57.000Z\",\n                \"expenseModifiedOn\": null,\n                \"expenseMembers\": [\n                    \"INKSPp4R\",\n                    \"LBoVC_eJ\",\n                    \"p_wJP6TV\"\n                ],\n                \"expensePreviousIds\": [],\n                \"expenseId\": \"o4ZgIEiN\",\n                \"expenseGroup\": \"KjaxYzzo\",\n                \"expenseTitle\": \"expense 1\",\n                \"expenseCreatedBy\": \"p_wJP6TV\",\n                \"expenseAmount\": 1000,\n                \"expensePaidBy\": \"p_wJP6TV\",\n                \"expenseIsCurrentVersion\": true\n            }\n        }",
+          "type": "json"
+        }
+      ]
+    },
+    "error": {
+      "examples": [
+        {
+          "title": "Error-Response:",
+          "content": "{\n            \"errorOccurred\": true,\n            \"message\": \"missing required input\",\n            \"status\": 400,\n            \"data\": null\n        }",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "app/route/expense.js",
+    "groupTitle": "expense",
+    "name": "PostExpenseCreatenewexpense"
+  },
+  {
+    "type": "post",
+    "url": "/expense/deleteExpense",
+    "title": "delete expense and all the balances involved",
+    "version": "1.0.0",
+    "group": "expense",
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "authToken",
+            "description": "<p>authToken to be passed as a body, header or query parameter</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "expenseId",
+            "description": "<p>expenseId of the expense which is being deleted to be passed as body parameter</p>"
+          }
+        ]
+      }
+    },
+    "success": {
+      "examples": [
+        {
+          "title": "Success-Response:",
+          "content": "{\n            \"errorOccurred\": false,\n            \"message\": \"expense deleted successfully\",\n            \"status\": 200,\n            \"data\": {\n                \"n\": 1,\n                \"ok\": 1,\n                \"deletedCount\": 1\n            }\n        }",
+          "type": "json"
+        }
+      ]
+    },
+    "error": {
+      "examples": [
+        {
+          "title": "Error-Response:",
+          "content": "{\n            \"errorOccurred\": true,\n            \"message\": \"expense already deleted\",\n            \"status\": 404,\n            \"data\": null\n        }",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "app/route/expense.js",
+    "groupTitle": "expense",
+    "name": "PostExpenseDeleteexpense"
+  },
+  {
+    "type": "post",
+    "url": "/expense/getAllExpenseBalance",
+    "title": "get all balances of the expense",
+    "version": "1.0.0",
+    "group": "expense",
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "authToken",
+            "description": "<p>authToken to be passed as a body, header or query parameter</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "expenseId",
+            "description": "<p>expenseId of expense whose balances are requested to be passed as body parameter</p>"
+          }
+        ]
+      }
+    },
+    "success": {
+      "examples": [
+        {
+          "title": "Success-Response:",
+          "content": "{\n            \"errorOccurred\": false,\n            \"message\": \"balances retreived successfully\",\n            \"status\": 200,\n            \"data\": [\n                {\n                    \"balanceId\": \"Pq63bx7KP\",\n                    \"expenseId\": \"KZFGnJ_W\",\n                    \"payee\": \"p_wJP6TV\",\n                    \"owedBy\": \"LBoVC_eJ\",\n                    \"debtAmount\": 333,\n                    \"expenseSettled\": false\n                },\n                {\n                    \"balanceId\": \"BYndyrmTn\",\n                    \"expenseId\": \"KZFGnJ_W\",\n                    \"payee\": \"p_wJP6TV\",\n                    \"owedBy\": \"p_wJP6TV\",\n                    \"debtAmount\": 333,\n                    \"expenseSettled\": false\n                },\n                {\n                    \"balanceId\": \"I0hiM33Vk\",\n                    \"expenseId\": \"KZFGnJ_W\",\n                    \"payee\": \"p_wJP6TV\",\n                    \"owedBy\": \"INKSPp4R\",\n                    \"debtAmount\": 333,\n                    \"expenseSettled\": false\n                }\n            ]\n        }",
+          "type": "json"
+        }
+      ]
+    },
+    "error": {
+      "examples": [
+        {
+          "title": "Error-Response:",
+          "content": "{\n            \"errorOccurred\": true,\n            \"message\": \"no balances found\",\n            \"status\": 404,\n            \"data\": null\n        }",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "app/route/expense.js",
+    "groupTitle": "expense",
+    "name": "PostExpenseGetallexpensebalance"
+  },
+  {
+    "type": "post",
+    "url": "/expense/getAllExpenses",
+    "title": "get all expenses",
+    "version": "1.0.0",
+    "group": "expense",
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "authToken",
+            "description": "<p>authToken to be passed as a body, header or query parameter</p>"
+          }
+        ]
+      }
+    },
+    "success": {
+      "examples": [
+        {
+          "title": "Success-Response:",
+          "content": "{\n            \"errorOccurred\": false,\n            \"message\": \"expenses retreived successfully\",\n            \"status\": 200,\n            \"data\": [\n                {\n                    \"expenseDescription\": \"exp desc 1\",\n                    \"expenseModifiedBy\": \"\",\n                    \"expenseCreatedOn\": \"2020-01-13T17:06:14.000Z\",\n                    \"expenseModifiedOn\": null,\n                    \"expenseMembers\": [\n                        \"INKSPp4R\",\n                        \"LBoVC_eJ\",\n                        \"p_wJP6TV\"\n                    ],\n                    \"expensePreviousIds\": [],\n                    \"expenseId\": \"E5IdvTyo\",\n                    \"expenseGroup\": \"KjaxYzzo\",\n                    \"expenseTitle\": \"expense 1\",\n                    \"expenseCreatedBy\": \"p_wJP6TV\",\n                    \"expenseAmount\": 1000,\n                    \"expensePaidBy\": \"p_wJP6TV\",\n                    \"expenseIsCurrentVersion\": true\n                }\n            ]\n        }",
+          "type": "json"
+        }
+      ]
+    },
+    "error": {
+      "examples": [
+        {
+          "title": "Error-Response:",
+          "content": "{\n            \"errorOccurred\": true,\n            \"message\": \"no expenses found\",\n            \"status\": 404,\n            \"data\": null\n        }",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "app/route/expense.js",
+    "groupTitle": "expense",
+    "name": "PostExpenseGetallexpenses"
+  },
+  {
+    "type": "post",
+    "url": "/expense/getAllGroupExpenses",
+    "title": "get all expenses of the group",
+    "version": "1.0.0",
+    "group": "expense",
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "authToken",
+            "description": "<p>authToken to be passed as a body, header or query parameter</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "groupId",
+            "description": "<p>groupId of which the expenses are required to be passed as body parameter</p>"
+          }
+        ]
+      }
+    },
+    "success": {
+      "examples": [
+        {
+          "title": "Success-Response:",
+          "content": "{\n            \"errorOccurred\": false,\n            \"message\": \"expenses retreived successfully\",\n            \"status\": 200,\n            \"data\": [\n                {\n                    \"expenseDescription\": \"exp desc 1\",\n                    \"expenseModifiedBy\": \"\",\n                    \"expenseCreatedOn\": \"2020-01-13T17:06:14.000Z\",\n                    \"expenseModifiedOn\": null,\n                    \"expenseMembers\": [\n                        \"INKSPp4R\",\n                        \"LBoVC_eJ\",\n                        \"p_wJP6TV\"\n                    ],\n                    \"expensePreviousIds\": [],\n                    \"expenseId\": \"E5IdvTyo\",\n                    \"expenseGroup\": \"KjaxYzzo\",\n                    \"expenseTitle\": \"expense 1\",\n                    \"expenseCreatedBy\": \"p_wJP6TV\",\n                    \"expenseAmount\": 1000,\n                    \"expensePaidBy\": \"p_wJP6TV\",\n                    \"expenseIsCurrentVersion\": true\n                }\n            ]\n        }",
+          "type": "json"
+        }
+      ]
+    },
+    "error": {
+      "examples": [
+        {
+          "title": "Error-Response:",
+          "content": "{\n            \"errorOccurred\": true,\n            \"message\": \"no expenses found\",\n            \"status\": 404,\n            \"data\": null\n        }",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "app/route/expense.js",
+    "groupTitle": "expense",
+    "name": "PostExpenseGetallgroupexpenses"
+  },
+  {
+    "type": "post",
     "url": "/group/createNewGroup",
     "title": "create new group",
     "version": "1.0.0",
@@ -58,6 +326,54 @@ define({ "api": [
     "filename": "app/route/group.js",
     "groupTitle": "group",
     "name": "PostGroupCreatenewgroup"
+  },
+  {
+    "type": "post",
+    "url": "/group/getAllGroup",
+    "title": "get all groups",
+    "version": "1.0.0",
+    "group": "group",
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "authToken",
+            "description": "<p>authToken to be passed as a body, header or query parameter</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "email",
+            "description": "<p>email of the user requesting the groups</p>"
+          }
+        ]
+      }
+    },
+    "success": {
+      "examples": [
+        {
+          "title": "Success-Response:",
+          "content": "{\n            \"errorOccurred\": false,\n            \"message\": \"groups found\",\n            \"status\": 200,\n            \"data\": [\n                {\n                    \"groupUsers\": [\n                        \"p_wJP6TV\",\n                        \"LBoVC_eJ\",\n                        \"12BS5-tX\"\n                    ],\n                    \"groupCreatedOn\": \"2020-01-09T13:08:23.000Z\",\n                    \"groupName\": \"first group\",\n                    \"groupExpenses\": [],\n                    \"groupSettled\": false,\n                    \"groupId\": \"JRUhLJfP\",\n                    \"groupOwner\": \"LBoVC_eJ\"\n                },\n                ....\n                {\n                    \"groupUsers\": [\n                        \"p_wJP6TV\",\n                        \"LBoVC_eJ\",\n                        \"12BS5-tX\"\n                    ],\n                    \"groupCreatedOn\": \"2020-01-09T13:09:50.000Z\",\n                    \"groupName\": \"group 1\",\n                    \"groupExpenses\": [],\n                    \"groupSettled\": false,\n                    \"groupId\": \"WlGBT1T_\",\n                    \"groupOwner\": \"LBoVC_eJ\"\n                }\n            ]\n        }",
+          "type": "json"
+        }
+      ]
+    },
+    "error": {
+      "examples": [
+        {
+          "title": "Error-Response:",
+          "content": "{\n            \"errorOccurred\": true,\n            \"message\": \"User's authentication details not found\",\n            \"status\": 404,\n            \"data\": null\n        }",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "app/route/group.js",
+    "groupTitle": "group",
+    "name": "PostGroupGetallgroup"
   },
   {
     "type": "post",
@@ -192,7 +508,7 @@ define({ "api": [
       "examples": [
         {
           "title": "Success-Response:",
-          "content": "{\n            \"errorOccurred\": false,\n            \"message\": \"groups found\",\n            \"status\": 200,\n            \"data\": [\n                {\n                    \"groupUsers\": [\n                        \"p_wJP6TV\",\n                        \"LBoVC_eJ\",\n                        \"12BS5-tX\"\n                    ],\n                    \"groupCreatedOn\": \"2020-01-09T13:08:23.000Z\",\n                    \"groupName\": \"first group\",\n                    \"groupExpenses\": [],\n                    \"groupSettled\": false,\n                    \"groupId\": \"JRUhLJfP\",\n                    \"groupOwner\": \"LBoVC_eJ\"\n                },\n                ....\n                {\n                    \"groupUsers\": [\n                        \"p_wJP6TV\",\n                        \"LBoVC_eJ\",\n                        \"12BS5-tX\"\n                    ],\n                    \"groupCreatedOn\": \"2020-01-09T13:09:50.000Z\",\n                    \"groupName\": \"group 1\",\n                    \"groupExpenses\": [],\n                    \"groupSettled\": false,\n                    \"groupId\": \"WlGBT1T_\",\n                    \"groupOwner\": \"LBoVC_eJ\"\n                }\n            ]\n        }",
+          "content": "{\n            \"errorOccurred\": false,\n            \"message\": \"group deleted successfully\",\n            \"status\": 200,\n            \"data\": {\n                \"n\": 1,\n                \"ok\": 1,\n                \"deletedCount\": 1\n            }\n        }",
           "type": "json"
         }
       ]
@@ -201,7 +517,7 @@ define({ "api": [
       "examples": [
         {
           "title": "Error-Response:",
-          "content": "{\n            \"errorOccurred\": true,\n            \"message\": \"User's authentication details not found\",\n            \"status\": 404,\n            \"data\": null\n        }",
+          "content": "{\n            \"errorOccurred\": true,\n            \"message\": \"group not found to delete\",\n            \"status\": 404,\n            \"data\": null\n        }",
           "type": "json"
         }
       ]
