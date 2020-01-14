@@ -242,6 +242,71 @@ let setRouter = (app)=>{
         }
      */
 
+     //getExpenseDetails 
+     //params : authToken : authToken of the user try to access the route to be passed as body, header or query parameter
+     //params : expenseId : expenseId of expense whose details are being requested to be passed as a body paramter
+     app.put(`${expenseUrl}/getExpenseDetails`, auth.isAuthenticated, controller.getExpenseDetails);
+     /**
+     * @api {post} /expense/getExpenseDetails get expense details of the selected expense
+     * @apiVersion 1.0.0
+     * @apiGroup expense
+     * 
+     * @apiParam {String} authToken authToken to be passed as a body, header or query parameter
+     * @apiParam {String} expenseId expenseId of the expense for which the details are being requested to be passed as body parameter
+     * 
+     * @apiSuccessExample {json} Success-Response:
+     * {
+            "errorOccurred": false,
+            "message": "expense deleted successfully",
+            "status": 200,
+            "data": {
+                "n": 1,
+                "ok": 1,
+                "deletedCount": 1
+            }
+        }
+     * 
+     * @apiErrorExample {json} Error-Response:
+     * {
+            "errorOccurred": true,
+            "message": "expense already deleted",
+            "status": 404,
+            "data": null
+        }
+     */
+
+      //deleteAllExpensesOfGroup 
+     //params : authToken : authToken of the user try to access the route to be passed as body, header or query parameter
+     //params : groupId : groupId of the group from which all expenses are being deleted
+     app.put(`${expenseUrl}/deleteAllExpensesOfGroup`, auth.isAuthenticated, controller.deleteAllExpensesOfGroup);
+     /**
+     * @api {post} /expense/deleteAllExpensesOfGroup delete all group expenses
+     * @apiVersion 1.0.0
+     * @apiGroup expense
+     * 
+     * @apiParam {String} authToken authToken to be passed as a body, header or query parameter
+     * @apiParam {String} groupId groupId of the group from which all expenses are being deleted to be passed as body parameter
+     * 
+     * @apiSuccessExample {json} Success-Response:
+     * {
+            "errorOccurred": false,
+            "message": "expense deleted successfully",
+            "status": 200,
+            "data": {
+                "n": 1,
+                "ok": 1,
+                "deletedCount": 1
+            }
+        }
+     * 
+     * @apiErrorExample {json} Error-Response:
+     * {
+            "errorOccurred": true,
+            "message": "expense already deleted",
+            "status": 404,
+            "data": null
+        }
+     */
 
     }
 

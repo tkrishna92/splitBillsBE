@@ -12,8 +12,8 @@ let expenseSchema = new Schema({
     expenseModifiedOn: { type: Date, default : '' },
     expenseAmount: { type: Number },
     expensePaidBy: { type: String },
-    expenseMembers: { type: [] },
-    expensePreviousIds: { type: [] },
+    expenseMembers: { type: [], default : undefined },
+    expensePreviousIds: { type: [], default : undefined },
     expenseIsCurrentVersion: { type: Boolean }
 })
 

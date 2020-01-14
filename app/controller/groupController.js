@@ -29,13 +29,15 @@ let createNewGroup = (req, res)=>{
                         logger.error("error checking if the given group name already exists", "groupController : createNewGroup - validate", 9);
                         let apiResponse = response.generate(true, "internal err : error while checking if the group already exists", 500, err);
                         reject(apiResponse);
-                    }else if(check.isEmpty(result)){
+                    // }else if(check.isEmpty(result)){
+                    }else{
                         resolve();
-                    }else {
-                        logger.error("group name already exists", "groupController : createNewGroup - validate", 9);
-                        let apiResponse = response.generate(true, "group name already exists", 400, null);
-                        reject(apiResponse);
                     }
+                    // else {
+                    //     logger.error("group name already exists", "groupController : createNewGroup - validate", 9);
+                    //     let apiResponse = response.generate(true, "group name already exists", 400, null);
+                    //     reject(apiResponse);
+                    // }
                 })
             }else {
                 logger.error("group name missing", "groupController : createNewGroup - validateInput", 9);
