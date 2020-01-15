@@ -65,7 +65,7 @@ let createNewExpense = (req, res)=>{
             expenseDetails.expenseMembers.map((user)=>{
                 let newBalance = new BalanceModel({
                     balanceId : shortId.generate(),
-                    expenseId : expenseDetails.expenseId,
+                    currentExpenseId : expenseDetails.expenseId,
                     payee : expenseDetails.expensePaidBy,
                     owedBy : user,
                     debtAmount : Math.round(expenseDetails.expenseAmount/expenseDetails.expenseMembers.length),
@@ -83,54 +83,54 @@ let createNewExpense = (req, res)=>{
         })
     }
 
-    //add expense to the group
-    let getGroupDetails = (expenseDetails)=>{        
-        return new Promise((resolve, reject)=>{
-            let updateObj = [];
-            updateObj.push(expenseDetails.expenseId);
-            console.log(updateObj);
-            console.log(expenseDetails.expenseGroup);
-            groupModel.findOne({groupId : expenseDetails.expenseGroup})
-            .lean()
-            .exec((err, result)=>{
-                if(err){
-                    logger.error("error while retreiving group details", "expenseController : createNewExpense - getGroupDetails", 9);
-                    let apiResponse = response.generate(true, "internal err : error while retreiving group details to update", 500, err);
-                    reject(apiResponse);
-                }else if(check.isEmpty(result)){
-                    logger.error("group not found", "expenseController : createNewExpense - getGroupDetails", 9);
-                    let apiResponse = response.generate(true, "group not found", 404, null);
-                    reject(apiResponse);
-                }else {
-                    updateObj = result.groupExpenses;
-                    updateObj[result.groupExpenses.length] = expenseDetails.expenseId; 
-                    let index = updateObj.indexOf("");
-                    if(index > -1){
-                        updateObj.splice(index, 1);
-                    }
-                    groupModel.updateOne({groupId : result.groupId}, {groupExpenses : updateObj}, {multi : true}, (err, result)=>{
-                        if(err){
-                            logger.error("error while updating group", "expenseController : createNewExpense - getGroupDetails", 9);
-                            let apiResponse = response.generate(true, "internal err : error while updating group", 500, err);
-                            reject(apiResponse);
-                        }else if(check.isEmpty(result)){
-                            logger.error("group not found", "expenseController : createNewExpense - getGroupDetails", 9);
-                            let apiResponse = response.generate(true, "could not find group", 404, null);
-                            reject(apiResponse)
-                        }else {
-                            resolve(expenseDetails);
-                        }
-                    })
-                }
-            })
-        })
-    }
+    // //add expense to the group
+    // let getGroupDetails = (expenseDetails)=>{        
+    //     return new Promise((resolve, reject)=>{
+    //         let updateObj = [];
+    //         updateObj.push(expenseDetails.expenseId);
+    //         console.log(updateObj);
+    //         console.log(expenseDetails.expenseGroup);
+    //         groupModel.findOne({groupId : expenseDetails.expenseGroup})
+    //         .lean()
+    //         .exec((err, result)=>{
+    //             if(err){
+    //                 logger.error("error while retreiving group details", "expenseController : createNewExpense - getGroupDetails", 9);
+    //                 let apiResponse = response.generate(true, "internal err : error while retreiving group details to update", 500, err);
+    //                 reject(apiResponse);
+    //             }else if(check.isEmpty(result)){
+    //                 logger.error("group not found", "expenseController : createNewExpense - getGroupDetails", 9);
+    //                 let apiResponse = response.generate(true, "group not found", 404, null);
+    //                 reject(apiResponse);
+    //             }else {
+    //                 updateObj = result.groupExpenses;
+    //                 updateObj[result.groupExpenses.length] = expenseDetails.expenseId; 
+    //                 let index = updateObj.indexOf("");
+    //                 if(index > -1){
+    //                     updateObj.splice(index, 1);
+    //                 }
+    //                 groupModel.updateOne({groupId : result.groupId}, {groupExpenses : updateObj}, {multi : true}, (err, result)=>{
+    //                     if(err){
+    //                         logger.error("error while updating group", "expenseController : createNewExpense - getGroupDetails", 9);
+    //                         let apiResponse = response.generate(true, "internal err : error while updating group", 500, err);
+    //                         reject(apiResponse);
+    //                     }else if(check.isEmpty(result)){
+    //                         logger.error("group not found", "expenseController : createNewExpense - getGroupDetails", 9);
+    //                         let apiResponse = response.generate(true, "could not find group", 404, null);
+    //                         reject(apiResponse)
+    //                     }else {
+    //                         resolve(expenseDetails);
+    //                     }
+    //                 })
+    //             }
+    //         })
+    //     })
+    // }
 
     
 
     createExpense()
     .then(createBalance)
-    .then(getGroupDetails)
+    // .then(getGroupDetails)
     .then((expenseDetails)=>{
         let apiResponse = response.generate(false, "expense generated successfully", 200, expenseDetails);
         res.send(apiResponse);
@@ -163,31 +163,15 @@ let getAllExpenses = (req, res)=>{
 }
 
 
-//get all balances 
-let getAllExpenseBalance = (req, res)=>{
-    BalanceModel.find({expenseId : req.body.expenseId})
-    .select('-__v -_id')
-    .lean()
-    .exec((err, result)=>{
-        if(err){
-            logger.error("error while retreiving all the available balances of expense", "expenseController : getAllBalance",9);
-            let apiResponse = response.generate(true, "internal err : Error while retreiving all balances", 500, err);
-            res.send(apiResponse);
-        }else if(check.isEmpty(result)){
-            logger.error("no balances found", "expenseController : getAllBalance", 9);
-            let apiResponse = response.generate(true, "no balances found", 404, null);
-            res.send(apiResponse);
-        }else {
-            logger.info("balances retreived successfully", "expenseController : getAllBalance", 8);
-            let apiResponse = response.generate(false, "balances retreived successfully", 200, result);
-            res.send(apiResponse);
-        }
-    })
-}
-
 //get all expenses
 let getAllGroupExpenses = (req, res)=>{
-    expenseModel.find({expenseGroup : req.body.groupId})
+    let queryObj = {
+        $and : [
+            {expenseGroup : req.body.groupId},
+            {expenseIsCurrentVersion : true}
+        ]
+    }
+    expenseModel.find(queryObj)
     .select('-__v -_id')
     .sort('-expenseCreatedOn')
     .lean()
@@ -208,26 +192,62 @@ let getAllGroupExpenses = (req, res)=>{
     })
 }
 
+
+
+//get all balances 
+let getAllExpenseBalance = (req, res)=>{
+    let queryObj = {
+        $and : [
+            {currentExpenseId : req.body.expenseId},
+            {balanceIsCurrent : true}
+        ]
+    }
+    BalanceModel.find(queryObj)
+    .select('-__v -_id')
+    .lean()
+    .exec((err, result)=>{
+        if(err){
+            logger.error("error while retreiving all the available balances of expense", "expenseController : getAllBalance",9);
+            let apiResponse = response.generate(true, "internal err : Error while retreiving all balances", 500, err);
+            res.send(apiResponse);
+        }else if(check.isEmpty(result)){
+            logger.error("no balances found", "expenseController : getAllBalance", 9);
+            let apiResponse = response.generate(true, "no balances found", 404, null);
+            res.send(apiResponse);
+        }else {
+            logger.info("balances retreived successfully", "expenseController : getAllBalance", 8);
+            let apiResponse = response.generate(false, "balances retreived successfully", 200, result);
+            res.send(apiResponse);
+        }
+    })
+}
+
 //delete Expense
 let deleteExpense = (req, res)=>{
     
     //delete all balances of expense 
     let deleteBalancesOfExpense = ()=>{
         return new Promise((resolve, reject)=>{
-            BalanceModel.deleteMany({expenseId : req.body.expenseId}, (err, result)=>{
+            let queryObj = {
+                $and : [
+                    {currentExpenseId : req.body.expenseId},
+                    {balanceIsCurrent : true}
+                ]
+            }
+            BalanceModel.deleteMany({$and :[{currentExpenseId : req.body.expenseId}, {balanceIsCurrent : true}]}, (err, result)=>{
                 if(err){
                     logger.error("error while deleting balances of expense", "expenseController : deleteExpense - deleteBalancesOfExpense", 9);
                     let apiResponse = response.generate(true, "internal err : Error while deleting balances of the expense", 500, err);
                     reject(apiResponse);
                 }else{
-                    resolve();
+                    resolve(result);
                 }
             })
         })
     }
 
     //delete current expense
-    let deleteCurrentExpense = ()=>{
+    let deleteCurrentExpense = (balanceResult)=>{
         return new Promise((resolve, reject)=>{
             expenseModel.deleteOne({expenseId : req.body.expenseId}, (err, result)=>{
                 if(err){
@@ -239,6 +259,7 @@ let deleteExpense = (req, res)=>{
                     let apiResponse = response.generate(true, "expense already deleted", 404, null);
                     reject(apiResponse);
                 }else {
+                    result.balanceResult = balanceResult
                     resolve(result);
                 }
             })
@@ -259,7 +280,13 @@ let deleteExpense = (req, res)=>{
 //get selected expense details
 let getExpenseDetails = (req, res)=>{
     if(req.body.expenseId){
-        expenseModel.findOne({expenseId : req.body.expenseId})
+        let queryObj = {
+            $and : [
+                {expenseId : req.body.expenseId},
+                {expenseIsCurrentVersion : true}
+            ]
+        }
+        expenseModel.findOne(queryObj)
         .select('-__v -_id')
         .lean()
         .exec((err, result)=>{
@@ -303,7 +330,8 @@ let deleteAllExpensesOfGroup = (req, res)=>{
                     reject(apiResponse);
                 }else{
                     result.map((expense)=>{
-                        BalanceModel.deleteMany({expenseId : expense.expenseId}, (err, result)=>{
+                        
+                        BalanceModel.deleteMany({currentExpenseId : expense.expenseId}, (err, result)=>{
                             if(err){
                                 logger.error("error while deleting balances of expense", "expenseController : deleteAllExpensesOfGroup - getAllExpenses", 9);
                                 let apiResponse = response.generate(true, "internal err : Error while deleting balances of the expense", 500, err);
@@ -349,30 +377,10 @@ let deleteAllExpensesOfGroup = (req, res)=>{
     })
 }
 
-// // edit an expense's description or title 
-// let editExpenseDescTitle = (req, res)=>{
+// edit an expense payee 
+let editExpensePayee = (req, res)=>{
     
-//     //get expense details 
-//     let getExpenseDetails = ()=>{
-//         return new Promise((resolve, reject)=>{
-//             if(req.body.expenseId){
-//                 let updateObj = {
-//                     $and 
-//                 }
-//                 expenseModel.findOneAndUpdate({expenseId : req.body.expenseId})
-                
-                    
-                
-//             }else{
-//                 logger.error("expenseId not provided", "expenseController : editExpenseDescTitle", 9);
-//                 let apiResponse = response.generate(true, "select an expense to edit", 400, null);
-//                 res.send(apiResponse);
-//             }
-//         })
-//     }
-
-//     //update expense
-// }
+}
 
 module.exports = {
     createNewExpense : createNewExpense,
@@ -382,6 +390,6 @@ module.exports = {
     deleteExpense : deleteExpense,
     deleteAllExpensesOfGroup : deleteAllExpensesOfGroup,
     getExpenseDetails : getExpenseDetails,
-    editExpenseDescTitle : editExpenseDescTitle
+    editExpensePayee : editExpensePayee
 
 }

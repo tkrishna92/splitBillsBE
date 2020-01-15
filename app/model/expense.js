@@ -13,8 +13,8 @@ let expenseSchema = new Schema({
     expenseAmount: { type: Number },
     expensePaidBy: { type: String },
     expenseMembers: { type: [], default : undefined },
-    expensePreviousIds: { type: [], default : undefined },
-    expenseIsCurrentVersion: { type: Boolean }
+    expensePreviousIds: { type : String},
+    expenseIsCurrentVersion: { type: Boolean, default : true}
 })
 
 mongoose.model('Expense', expenseSchema);

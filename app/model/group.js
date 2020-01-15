@@ -7,7 +7,7 @@ let GroupSchema = new Schema({
     groupUsers: { type: [] },
     groupCreatedOn: { type: Date, default: Date.now() },
     groupName: { type: String, default: '' },
-    groupExpenses: { type: [], default: '' },
+    // groupExpenses: { type: [], default: '' },
     groupSettled: { type: Boolean, default: false }
 })
 

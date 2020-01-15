@@ -229,7 +229,12 @@ let setRouter = (app)=>{
             "data": {
                 "n": 1,
                 "ok": 1,
-                "deletedCount": 1
+                "deletedCount": 1,
+                "balanceResult": {
+                    "n": 3,
+                    "ok": 1,
+                    "deletedCount": 3
+                }
             }
         }
      * 
@@ -257,25 +262,37 @@ let setRouter = (app)=>{
      * @apiSuccessExample {json} Success-Response:
      * {
             "errorOccurred": false,
-            "message": "expense deleted successfully",
-            "status": 200,
-            "data": {
-                "n": 1,
-                "ok": 1,
-                "deletedCount": 1
+            "message": "expense retreived successfully",
+            "status": {
+                "expenseDescription": "exp desc 1",
+                "expenseModifiedBy": "",
+                "expenseCreatedOn": "2020-01-15T11:00:30.000Z",
+                "expenseModifiedOn": null,
+                "expenseIsCurrentVersion": true,
+                "expenseId": "bqaTcuzG",
+                "expenseGroup": "dGIFkbOn",
+                "expenseTitle": "expense 1",
+                "expenseCreatedBy": "LBoVC_eJ",
+                "expenseAmount": 1000,
+                "expensePaidBy": "p_wJP6TV",
+                "expenseMembers": [
+                    "INKSPp4R",
+                    "LBoVC_eJ",
+                    "p_wJP6TV"
+                ]
             }
         }
      * 
      * @apiErrorExample {json} Error-Response:
      * {
             "errorOccurred": true,
-            "message": "expense already deleted",
+            "message": "expense not found",
             "status": 404,
             "data": null
         }
      */
 
-      //deleteAllExpensesOfGroup 
+     //deleteAllExpensesOfGroup 
      //params : authToken : authToken of the user try to access the route to be passed as body, header or query parameter
      //params : groupId : groupId of the group from which all expenses are being deleted
      app.put(`${expenseUrl}/deleteAllExpensesOfGroup`, auth.isAuthenticated, controller.deleteAllExpensesOfGroup);

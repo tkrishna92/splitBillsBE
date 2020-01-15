@@ -8,7 +8,8 @@ let BalanceSchema = new Schema({
     payee: { type: String },
     owedBy: { type: String },
     debtAmount: { type: Number },  //amount the person owes the payee for the expense
-    expenseSettled: { type: Boolean }
+    balanceIsCurrent : {type : Boolean, default : true},
+    expenseSettled: { type: Boolean, default : false }
 })
 
 mongoose.model('Balance', BalanceSchema)
