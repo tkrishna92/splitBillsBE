@@ -37,10 +37,12 @@ let createNewExpense = (req, res)=>{
                     expenseTitle : req.body.title,
                     expenseDescription : req.body.description,
                     expenseCreatedBy : req.user.userId,
+                    expenseCreatedByName : req.body.userName,
                     expenseCreatedOn : time.localTimeNow(),
                     expenseAmount : req.body.amount,
                     expensePaidBy : req.body.paidBy,
                     expenseMembers : expenseMembers,
+                    expenseLatestModification: `${req.body.userName} created a new expense ${req.body.title}`,
                     expenseIsCurrentVersion : true
                 })
                 newExpense.save((err, result)=>{
@@ -199,7 +201,7 @@ let getAllExpenseBalance = (req, res)=>{
     let queryObj = {
         $and : [
             {currentExpenseId : req.body.expenseId},
-            {balanceIsCurrent : true}
+            {expenseSettled : false}
         ]
     }
     BalanceModel.find(queryObj)
@@ -231,10 +233,10 @@ let deleteExpense = (req, res)=>{
             let queryObj = {
                 $and : [
                     {currentExpenseId : req.body.expenseId},
-                    {balanceIsCurrent : true}
+                    {expenseSettled : false}
                 ]
             }
-            BalanceModel.deleteMany({$and :[{currentExpenseId : req.body.expenseId}, {balanceIsCurrent : true}]}, (err, result)=>{
+            BalanceModel.deleteMany(queryObj, (err, result)=>{
                 if(err){
                     logger.error("error while deleting balances of expense", "expenseController : deleteExpense - deleteBalancesOfExpense", 9);
                     let apiResponse = response.generate(true, "internal err : Error while deleting balances of the expense", 500, err);
@@ -380,7 +382,338 @@ let deleteAllExpensesOfGroup = (req, res)=>{
 // edit an expense payee 
 let editExpensePayee = (req, res)=>{
     
+    //get expense detail
+    let getExpenseDetail = ()=>{
+        return new Promise((resolve, reject)=>{
+            let queryObj ={
+                $and : [
+                    {expenseId : req.body.expenseId},
+                    {expenseIsCurrentVersion : true}
+                ]
+            }
+            expenseModel.findOne(queryObj)
+            .select('-__v -_id')
+            .lean()
+            .exec((err, currentExpense)=>{
+                if(err){
+                    logger.error("error while retreiving the expense for updating", "expenseController : editExpensePayee - getExpenseDetail", 9);
+                    let apiResponse = response.generate(true, "internal err : Error while retreiving expense details", 500, err);
+                    reject(apiResponse);
+                }if(check.isEmpty(currentExpense)){
+                    logger.error("expense not found", "expenseController : editExpensePayee - getExpenseDetail", 9 );
+                    let apiResponse = response.generate(true, "expense not found", 404, null);
+                    reject(apiResponse);
+                }else {
+                    resolve(currentExpense);
+                }
+            })
+        })
+    }
+
+    //update expense 
+    let updateExpense = (currentExpense)=>{
+        return new Promise((resolve, reject)=>{
+            let latestModification = currentExpense.expenseLatestModification;
+            latestModification.push(`${req.body.userName} made ${req.body.paidByUserName} as the person who paid for ${currentExpense.expenseTitle}`);
+            let queryObj ={
+                $and : [
+                    {expenseId : req.body.expenseId},
+                    {expenseIsCurrentVersion : true}
+                ]
+            };
+            let updateObj = {
+                expenseModifiedBy : req.user.userId,
+                expenseModifiedByName : req.body.userName,
+                expenseModifiedOn : time.localTimeNow(),
+                expensePaidBy : req.body.paidBy,
+                expenseLatestModification : latestModification
+            }
+            expenseModel.findOneAndUpdate(queryObj, updateObj, {multi : true}, (err, result)=>{
+                if(err){
+                    logger.error("error while updating the expense", "expenseController : editExpensePayee - updateExpense", 9);
+                    let apiResponse = response.generate(true, "internal err : error while updating the expense", 500, err);
+                    reject(apiResponse);
+                }else if(check.isEmpty(result)){
+                    logger.error("expense not found", "expenseController : editExpensePayee - updateExpense", 9);
+                    let apiResponse = response.generate(true, "expense not found", 404, null);
+                    reject(apiResponse);
+                }else{
+                    let updatedExpense = result;
+                    resolve(updatedExpense);
+                }
+            })    
+        })
+    }
+
+    //update balances of the expense
+    let updateBalances = (updatedExpense)=>{
+        return new Promise((resolve, reject)=>{
+            BalanceModel.updateMany({currentExpenseId : updatedExpense.expenseId}, {payee : req.body.paidBy}, {multi : true}, (err, result)=>{
+                if(err){
+                    logger.error("error while updating the balances of the expense", "expenseController : editExpensePayee - updateBalances", 9);
+                    let apiResponse = response.generate(true, "internal err : Error while updating the balances", 500, err);
+                    reject(apiResponse);
+                }else if(result.n == 0){
+                    logger.error("balances not found", "expenseController : editExpensePayee - updateBalances", 9);
+                    let apiResponse = response.generate(true, "balances not found", 404, null);
+                    reject(apiResponse);
+                }else {
+                    resolve(result);
+                }
+            })
+        })
+    }
+
+    getExpenseDetail()
+    .then(updateExpense)
+    .then(updateBalances)
+    .then((resolve)=>{
+        let apiResponse = response.generate(false, "updated payee successfully", 200, resolve);
+        res.send(apiResponse);
+    })
+    .catch((error)=>{
+        res.send(error);
+    })
+
 }
+
+// edit an expense payee 
+let editExpenseAmount = (req, res)=>{
+    
+    //get expense detail
+    let getExpenseDetail = ()=>{
+        return new Promise((resolve, reject)=>{
+            let queryObj ={
+                $and : [
+                    {expenseId : req.body.expenseId},
+                    {expenseIsCurrentVersion : true}
+                ]
+            }
+            expenseModel.findOne(queryObj)
+            .select('-__v -_id')
+            .lean()
+            .exec((err, currentExpense)=>{
+                if(err){
+                    logger.error("error while retreiving the expense for updating", "expenseController : editExpenseAmount - getExpenseDetail", 9);
+                    let apiResponse = response.generate(true, "internal err : Error while retreiving expense details", 500, err);
+                    reject(apiResponse);
+                }if(check.isEmpty(currentExpense)){
+                    logger.error("expense not found", "expenseController : editExpenseAmount - getExpenseDetail", 9 );
+                    let apiResponse = response.generate(true, "expense not found", 404, null);
+                    reject(apiResponse);
+                }else {
+                    resolve(currentExpense);
+                }
+            })
+        })
+    }
+
+    //update expense 
+    let updateExpense = (currentExpense)=>{
+        return new Promise((resolve, reject)=>{
+            let latestModification = currentExpense.expenseLatestModification;
+            latestModification.push(`${req.body.userName} changed the amount for ${currentExpense.expenseTitle} to ${req.body.newAmount} from ${currentExpense.expenseAmount}`);
+            let queryObj ={
+                $and : [
+                    {expenseId : req.body.expenseId},
+                    {expenseIsCurrentVersion : true}
+                ]
+            };
+            let updateObj = {
+                expenseModifiedBy : req.user.userId,
+                expenseModifiedByName : req.body.userName,
+                expenseModifiedOn : time.localTimeNow(),
+                expenseAmount : req.body.newAmount,
+                expenseLatestModification : latestModification
+            }
+            expenseModel.findOneAndUpdate(queryObj, updateObj, {multi : true}, (err, result)=>{
+                if(err){
+                    logger.error("error while updating the expense", "expenseController : editExpenseAmount - updateExpense", 9);
+                    let apiResponse = response.generate(true, "internal err : error while updating the expense", 500, err);
+                    reject(apiResponse);
+                }else if(check.isEmpty(result)){
+                    logger.error("expense not found", "expenseController : editExpenseAmount - updateExpense", 9);
+                    let apiResponse = response.generate(true, "expense not found", 404, null);
+                    reject(apiResponse);
+                }else{
+                    let updatedExpense = result;
+                    resolve(updatedExpense);
+                }
+            })    
+        })
+    }
+
+    //update balances of the expense
+    let updateBalances = (updatedExpense)=>{
+        return new Promise((resolve, reject)=>{
+            let newDebtAmount = Math.round(req.body.newAmount/updatedExpense.expenseMembers.length)
+            BalanceModel.updateMany({currentExpenseId : updatedExpense.expenseId}, {debtAmount : newDebtAmount}, {multi : true}, (err, result)=>{
+                if(err){
+                    logger.error("error while updating the balances of the expense", "expenseController : editExpenseAmount - updateBalances", 9);
+                    let apiResponse = response.generate(true, "internal err : Error while updating the balances", 500, err);
+                    reject(apiResponse);
+                }else if(result.n == 0){
+                    logger.error("balances not found", "expenseController : editExpenseAmount - updateBalances", 9);
+                    let apiResponse = response.generate(true, "balances not found", 404, null);
+                    reject(apiResponse);
+                }else {
+                    resolve(result);
+                }
+            })
+        })
+    }
+
+    getExpenseDetail()
+    .then(updateExpense)
+    .then(updateBalances)
+    .then((resolve)=>{
+        let apiResponse = response.generate(false, "updated amount successfully", 200, resolve);
+        res.send(apiResponse);
+    })
+    .catch((error)=>{
+        res.send(error);
+    })
+
+}
+
+//add users to existing expense
+let addUsersToExpense = (req, res)=>{
+
+    //get expense detail
+    let getExpenseDetail = ()=>{
+        return new Promise((resolve, reject)=>{
+            let queryObj ={
+                $and : [
+                    {expenseId : req.body.expenseId},
+                    {expenseIsCurrentVersion : true}
+                ]
+            }
+            expenseModel.findOne(queryObj)
+            .select('-__v -_id')
+            .lean()
+            .exec((err, currentExpense)=>{
+                if(err){
+                    logger.error("error while retreiving the expense for updating", "expenseController : addUsersToExpense - getExpenseDetail", 9);
+                    let apiResponse = response.generate(true, "internal err : Error while retreiving expense details", 500, err);
+                    reject(apiResponse);
+                }if(check.isEmpty(currentExpense)){
+                    logger.error("expense not found", "expenseController : addUsersToExpense - getExpenseDetail", 9 );
+                    let apiResponse = response.generate(true, "expense not found", 404, null);
+                    reject(apiResponse);
+                }else {
+                    resolve(currentExpense);
+                }
+            })
+        })
+    }
+
+    //update expense 
+    let updateExpense = (currentExpense)=>{
+        return new Promise((resolve, reject)=>{
+            let newMembers = req.body.addedUsers.split(",");
+            let updatedMembers = currentExpense.expenseMembers.concat(newMembers);
+            let uniqueMembers = [... new Set(updatedMembers)];            
+            console.log(uniqueMembers);
+            let latestModification = currentExpense.expenseLatestModification;
+            latestModification.push(`${req.body.userName} added ${req.body.addedUsersNames} to ${currentExpense.expenseTitle}`);
+            console.log("latest modification :"+latestModification)
+            let queryObj ={
+                $and : [
+                    {expenseId : req.body.expenseId},
+                    {expenseIsCurrentVersion : true}
+                ]
+            };
+            let updateObj = {
+                expenseModifiedBy : req.user.userId,
+                expenseModifiedByName : req.body.userName,
+                expenseModifiedOn : time.localTimeNow(),
+                expenseMembers : uniqueMembers,
+                expenseLatestModification : latestModification
+            }
+            expenseModel.findOneAndUpdate(queryObj, updateObj, {multi : true}, (err, result)=>{
+                if(err){
+                    logger.error("error while updating the expense", "expenseController : addUsersToExpense - updateExpense", 9);
+                    let apiResponse = response.generate(true, "internal err : error while updating the expense", 500, err);
+                    reject(apiResponse);
+                }else if(check.isEmpty(result)){
+                    logger.error("expense not found", "expenseController : addUsersToExpense - updateExpense", 9);
+                    let apiResponse = response.generate(true, "expense not found", 404, null);
+                    reject(apiResponse);
+                }else{
+                    let updatedExpense = result.toObject();
+                    updatedExpense["newMembers"] = newMembers;
+                    resolve(updatedExpense);
+                    console.log(updatedExpense)
+                }
+            })    
+        })
+    }
+
+    //update balances of the expense
+    let updateBalances = (updatedExpense)=>{
+        console.log("updateBalances called");
+        console.log(updatedExpense)
+        return new Promise((resolve, reject)=>{
+            console.log("promise called");
+            let updates = [];
+            let newDebtAmount = Math.round(updatedExpense.expenseAmount/updatedExpense.expenseMembers.length)
+            console.log("newDebtAmount "+newDebtAmount);
+            updatedExpense.expenseMembers.forEach(user => {
+                let queryObj = {
+                    $and : [
+                        {currentExpenseId : updatedExpense.expenseId},
+                        {owedBy : user}
+                    ]                    
+                }
+                console.log("forEach user :"+user);
+                BalanceModel.findOneAndUpdate(queryObj, {debtAmount : newDebtAmount}, {multi : true}, (err, result)=>{
+                    if(err){
+                        logger.error("error while updating balances of the expense", "expenseController : addUsersToExpense - updateBalance-findOneAndUpdate",9);
+                        let apiResponse = response.generate(true, "internal err : error while updating balances", 500, err);
+                        reject(apiResponse);
+                    }else if(check.isEmpty(result)){
+                        console.log("creating new balance")
+                        let newBalance = new BalanceModel({
+                            balanceId : shortId.generate(),
+                            currentExpenseId : updatedExpense.expenseId,
+                            payee : updatedExpense.expensePaidBy,
+                            owedBy : user,
+                            debtAmount : newDebtAmount,
+                            expenseSettled : false
+                        });
+                        newBalance.save((err, newBalance)=>{
+                            if(err){
+                                logger.error("error while creating a new balance for new user", "expenseController : addUsersToExpense - updateBalance- while creating a new balance for new user", 9);
+                                let apiResponse = response.generate(true, "internal err : Error while creating a new balance for new user", 500, err);
+                                reject(apiResponse);
+                            }else{
+                                updates.push(newBalance)                                
+                            }
+                        })
+                    }else{
+                        updates.push(result);                        
+                    }
+                })
+            });
+            console.log(updates);
+            resolve(updatedExpense);
+        })
+    }
+
+    getExpenseDetail()
+    .then(updateExpense)
+    .then(updateBalances)
+    .then((resolve)=>{
+        let apiResponse = response.generate(false, "updated new users successfully", 200, resolve);
+        res.send(apiResponse);
+    })
+    .catch((error)=>{
+        res.send(error);
+    })
+ 
+}
+
+
 
 module.exports = {
     createNewExpense : createNewExpense,
@@ -390,6 +723,7 @@ module.exports = {
     deleteExpense : deleteExpense,
     deleteAllExpensesOfGroup : deleteAllExpensesOfGroup,
     getExpenseDetails : getExpenseDetails,
-    editExpensePayee : editExpensePayee
-
+    editExpensePayee : editExpensePayee,
+    editExpenseAmount : editExpenseAmount,
+    addUsersToExpense : addUsersToExpense
 }

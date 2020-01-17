@@ -22,6 +22,7 @@ let setRouter = (app)=>{
      * @apiParam {Number} amount the amount involved in the expense
      * @apiParam {String} paidBy userId of the person who paid for the expense
      * @apiParam {String} involvedMembers a string of userIds of the people involved in the expense
+     * @apiParam {String} userName name of the user who created the expense
      * 
      * @apiSuccessExample {json} Success-Response:
      * {
@@ -43,6 +44,7 @@ let setRouter = (app)=>{
                 "expenseGroup": "KjaxYzzo",
                 "expenseTitle": "expense 1",
                 "expenseCreatedBy": "p_wJP6TV",
+                "expenseCreatedByName": "user name",
                 "expenseAmount": 1000,
                 "expensePaidBy": "p_wJP6TV",
                 "expenseIsCurrentVersion": true
@@ -90,6 +92,7 @@ let setRouter = (app)=>{
                     "expenseGroup": "KjaxYzzo",
                     "expenseTitle": "expense 1",
                     "expenseCreatedBy": "p_wJP6TV",
+                    "expenseCreatedByName": "user name",
                     "expenseAmount": 1000,
                     "expensePaidBy": "p_wJP6TV",
                     "expenseIsCurrentVersion": true
@@ -139,6 +142,7 @@ let setRouter = (app)=>{
                     "expenseGroup": "KjaxYzzo",
                     "expenseTitle": "expense 1",
                     "expenseCreatedBy": "p_wJP6TV",
+                    "expenseCreatedByName": "user name",
                     "expenseAmount": 1000,
                     "expensePaidBy": "p_wJP6TV",
                     "expenseIsCurrentVersion": true
@@ -273,6 +277,7 @@ let setRouter = (app)=>{
                 "expenseGroup": "dGIFkbOn",
                 "expenseTitle": "expense 1",
                 "expenseCreatedBy": "LBoVC_eJ",
+                "expenseCreatedByName": "user name",
                 "expenseAmount": 1000,
                 "expensePaidBy": "p_wJP6TV",
                 "expenseMembers": [
@@ -324,6 +329,124 @@ let setRouter = (app)=>{
             "data": null
         }
      */
+
+     
+     //editExpensePayee 
+     //params : authToken : authToken of the user try to access the route to be passed as body, header or query parameter
+     //params : expenseId : expenseId of the expense, whose payee is being edited
+     //params : userName : name of the user editing the field
+     //params : paidBy : userId of the new payee
+     //params : paidByUserName : user name of the new payee
+     app.post(`${expenseUrl}/editExpensePayee`, auth.isAuthenticated, controller.editExpensePayee);
+     /**
+     * @api {post} /expense/editExpensePayee edit expense payee
+     * @apiVersion 1.0.0
+     * @apiGroup expense
+     * 
+     * @apiParam {String} authToken authToken to be passed as a body, header or query parameter
+     * @apiParam {String} expenseId expenseId of expense which is being updated to be passed as body parameter
+     * @apiParam {String} userName userName of the person making the request to be passed as body parameter
+     * @apiParam {String} paidBy userId of the new payee to be passed as body parameter
+     * @apiParam {String} paidByUserName user name of the new payee to be passed as body parameter
+     * 
+     * @apiSuccessExample {json} Success-Response:
+     * {
+            "errorOccurred": false,
+            "message": "updated payee successfully",
+            "status": 200,
+            "data": {
+                "n": 3,
+                "nModified": 0,
+                "ok": 1
+            }
+        }
+     * 
+     * @apiErrorExample {json} Error-Response:
+     * {
+            "errorOccurred": true,
+            "message": "balances not found",
+            "status": 404,
+            "data": null
+        }
+     */
+
+     
+     //editExpenseAmount
+     //params : authToken : authToken of the user try to access the route to be passed as body, header or query parameter
+     //params : expenseId : expenseId of the expense, whose payee is being edited
+     //params : userName : name of the user editing the field
+     //params : newAmount : new amount that needs to be updated
+     app.post(`${expenseUrl}/editExpenseAmount`, auth.isAuthenticated, controller.editExpenseAmount);
+     /**
+     * @api {post} /expense/editExpenseAmount edit expense amount
+     * @apiVersion 1.0.0
+     * @apiGroup expense
+     * 
+     * @apiParam {String} authToken authToken to be passed as a body, header or query parameter
+     * @apiParam {String} expenseId expenseId of expense which is being updated to be passed as body parameter
+     * @apiParam {String} userName userName of the person making the request to be passed as body parameter
+     * @apiParam {String} newAmount new amount that needs to be updated as expense
+     * 
+     * @apiSuccessExample {json} Success-Response:
+     * {
+            "errorOccurred": false,
+            "message": "updated payee successfully",
+            "status": 200,
+            "data": {
+                "n": 3,
+                "nModified": 3,
+                "ok": 1
+            }
+        }
+     * 
+     * @apiErrorExample {json} Error-Response:
+     * {
+            "errorOccurred": true,
+            "message": "balances not found",
+            "status": 404,
+            "data": null
+        }
+     */
+    
+     //addUsersToExpense
+     //params : authToken : authToken of the user try to access the route to be passed as body, header or query parameter
+     //params : expenseId : expenseId of the expense, whose payee is being edited
+     //params : userName : name of the user editing the field
+     //params : addedUsers : userIds of the new users that need to be added to the expense to be passed as a string of CSV's 
+     //params : addedUsersNames : user names of the new users that need to be added to the expense to be passed as a string of CSV's
+     app.post(`${expenseUrl}/addUsersToExpense`, auth.isAuthenticated, controller.addUsersToExpense);
+     /**
+     * @api {post} /expense/addUsersToExpense edit expense amount
+     * @apiVersion 1.0.0
+     * @apiGroup expense
+     * 
+     * @apiParam {String} authToken authToken to be passed as a body, header or query parameter
+     * @apiParam {String} expenseId expenseId of expense which is being updated to be passed as body parameter
+     * @apiParam {String} userName userName of the person making the request to be passed as body parameter
+     * @apiParam {String} addedUsers userIds of the new users that need to be added to the expense to be passed as a string of CSV's to be passed as body parameter
+     * @apiParam {String} addedUsersNames user names of the new users that need to be added to the expense to be passed as a string of CSV's to be passed as a body parameter
+     * 
+     * @apiSuccessExample {json} Success-Response:
+     * {
+            "errorOccurred": false,
+            "message": "updated payee successfully",
+            "status": 200,
+            "data": {
+                "n": 3,
+                "nModified": 3,
+                "ok": 1
+            }
+        }
+     * 
+     * @apiErrorExample {json} Error-Response:
+     * {
+            "errorOccurred": true,
+            "message": "balances not found",
+            "status": 404,
+            "data": null
+        }
+     */
+
 
     }
 
