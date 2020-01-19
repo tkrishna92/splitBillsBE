@@ -3,7 +3,7 @@ const controller = require('./../controller/groupController');
 const appConfig = require('./../../config/appConfig');
 const auth = require('./../middleware/auth');
 
-let setRouter = (app)=>{
+let setRouter = (app) => {
     let groupUrl = `${appConfig.apiVersion}/group`;
 
     //createNewGroup : this creates a new group with the given group name and the user creating as owner
@@ -55,7 +55,7 @@ let setRouter = (app)=>{
         }
      */
 
-     
+
     //getAllGroupsOfUser : gets all the groups the user is a member of
     //params : authToken : can be passed as body, query or header parameter
     //params : email : email of the user requesting the groups
@@ -113,7 +113,7 @@ let setRouter = (app)=>{
         }
      */
 
-     //getAllGroups : gets all the groups, can be used for administration purposes
+    //getAllGroups : gets all the groups, can be used for administration purposes
     //params : authToken : can be passed as body, query or header parameter
     app.get(`${groupUrl}/getAllGroups`, auth.isAuthenticated, controller.getAllGroups);
     /**
@@ -285,5 +285,5 @@ let setRouter = (app)=>{
 }
 
 module.exports = {
-    setRouter : setRouter
+    setRouter: setRouter
 }

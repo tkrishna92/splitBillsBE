@@ -249,7 +249,6 @@ let getCountryCode = (req, res) => {
 let getCountryPhoneCode = (req, res) => {
     logger.info("country phone code requested", "userController : getCountryPhoneCode", 8);
     let countryCode = countryList.getCode(req.body.countryName);
-    console.log(countryTelephoneCode(countryCode));
     let apiResponse = response.generate(false, "country phone code list", 200, (countryTelephoneCode(countryCode)));
     res.send(apiResponse);
 }
@@ -280,7 +279,6 @@ let getUserDetails = (req, res) => {
 //for editing user profile details
 let editUser = (req, res) => {
     if (req.body.userId) {
-        console.log(req.body)
         let updateObj = req.body;
         userModel.update({ userId: req.body.userId }, updateObj, { multi: true }, (err, result) => {
             if (err) {
@@ -430,69 +428,69 @@ let forgotPassword = (req, res) => {
 }
 
 //edit password function
-let editPassword = (req, res)=>{
-    if(validateInputParams.Password(req.body.password)){
-            let updateObj = {
-                password : generatePassword.generatePassword(req.body.password)
+let editPassword = (req, res) => {
+    if (validateInputParams.Password(req.body.password)) {
+        let updateObj = {
+            password: generatePassword.generatePassword(req.body.password)
+        }
+        userModel.update({ userId: req.user.userId }, updateObj, { multi: true }, (err, result) => {
+            if (err) {
+                logger.error("error while updating new password", "userController : editPassword", 9);
+                let apiResponse = response.generate(true, "internal err : error while saving new password", 500, err);
+                res.send(apiResponse);
+            } else if (result.n == 0) {
+                logger.error("user not found", "userController : editPassword", 9);
+                let apiResponse = response.generate(true, "user not found to update password", 404, null);
+                res.send(apiResponse);
+            } else {
+                logger.info("password update successful", "userController : editPassword", 9);
+                let apiResponse = response.generate(false, "password update successful", 200, result);
+                res.send(apiResponse);
             }
-            userModel.update({userId : req.user.userId}, updateObj, {multi : true}, (err, result)=>{
-                if(err){
-                    logger.error("error while updating new password", "userController : editPassword", 9);
-                    let apiResponse = response.generate(true, "internal err : error while saving new password", 500, err);
-                    res.send(apiResponse);
-                }else if(result.n == 0){
-                    logger.error("user not found", "userController : editPassword", 9);
-                    let apiResponse = response.generate(true, "user not found to update password", 404, null);
-                    res.send(apiResponse);
-                }else {
-                    logger.info("password update successful", "userController : editPassword", 9);
-                    let apiResponse = response.generate(false, "password update successful", 200, result);
-                    res.send(apiResponse);
-                }
-            })
-    }else {
-        logger.error("invalid password received", "userController : editPassword", 9 );
+        })
+    } else {
+        logger.error("invalid password received", "userController : editPassword", 9);
         let apiResponse = response.generate(true, "invalid password entered : please enter minimum 8 charectes which contain only characters, numeric digits, underscore", 400, null);
         res.send(apiResponse);
     }
 }
 
 //for getting all available users
-let getAllUsers = (req, res)=>{
+let getAllUsers = (req, res) => {
     userModel.find()
-    .select('-__v -_id -password -createdOn')
-    .sort('firstName')
-    .lean()
-    .exec((err, result)=>{
-        if(err){
-            logger.error("error retreiving users", "userController : getAllUsers", 9);
-            let apiResponse = response.generate(true, "internal err : error while trying to fetch all the users", 500, err);
-            res.send(apiResponse);
-        }else if(check.isEmpty(result)){
-            logger.error("no users found","userController : getAllUsers", 9);
-            let apiResponse = response.generate(true, "no users found", 404, null);
-            res.send(apiResponse);
-        }else{
-            logger.info("users found", "userController : getAllUsers", 7);
-            let apiResponse = response.generate(false, "users found", 200, result);
-            res.send(apiResponse);
-        }
-    })
+        .select('-__v -_id -password -createdOn')
+        .sort('firstName')
+        .lean()
+        .exec((err, result) => {
+            if (err) {
+                logger.error("error retreiving users", "userController : getAllUsers", 9);
+                let apiResponse = response.generate(true, "internal err : error while trying to fetch all the users", 500, err);
+                res.send(apiResponse);
+            } else if (check.isEmpty(result)) {
+                logger.error("no users found", "userController : getAllUsers", 9);
+                let apiResponse = response.generate(true, "no users found", 404, null);
+                res.send(apiResponse);
+            } else {
+                logger.info("users found", "userController : getAllUsers", 7);
+                let apiResponse = response.generate(false, "users found", 200, result);
+                res.send(apiResponse);
+            }
+        })
 }
 
 // function to logout user
-let logout = (req, res)=>{
-    authModel.remove({userId : req.user.userId}, (err, result)=>{
-        if(err){
+let logout = (req, res) => {
+    authModel.remove({ userId: req.user.userId }, (err, result) => {
+        if (err) {
             logger.error("error removing user details from auth document", "userController : logout", 9);
             let apiResponse = response.generate(true, "error logging out", 500, err);
             res.send(apiResponse);
-        }else if(result.n == 0){
+        } else if (result.n == 0) {
             logger.error("no user found to remove", "userController - logout", 9);
             let apiResponse = response.generate(true, "user already logged out", 400, null);
             res.send(apiResponse);
-        }else {
-            logger.info("user successfully logged out","userController - logout", 9);
+        } else {
+            logger.info("user successfully logged out", "userController - logout", 9);
             let apiResponse = response.generate(false, "logout successful", 200, result);
             res.send(apiResponse);
         }
@@ -508,7 +506,7 @@ module.exports = {
     getUserDetails: getUserDetails,
     editUser: editUser,
     forgotPassword: forgotPassword,
-    editPassword : editPassword,
-    getAllUsers : getAllUsers,
-    logout : logout
+    editPassword: editPassword,
+    getAllUsers: getAllUsers,
+    logout: logout
 }

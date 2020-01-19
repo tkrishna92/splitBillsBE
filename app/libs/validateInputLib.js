@@ -1,8 +1,8 @@
-let Email = (email) =>{
+let Email = (email) => {
     let emailRegex = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/
-    if(email.match(emailRegex)){
+    if (email.match(emailRegex)) {
         return email
-    }else{
+    } else {
         return false
     }
 }
@@ -11,14 +11,14 @@ let Email = (email) =>{
 /* for password to be minimum 8 charectes which contain only characters, numeric digits, underscore */
 let Password = (password) => {
     let passwordRegex = /^[A-Za-z0-9]\w{7,}$/
-    if(password.match(passwordRegex)){
+    if (password.match(passwordRegex)) {
         return password
-    }else {
+    } else {
         return false
     }
 }
 
 module.exports = {
-    Email : Email,
-    Password : Password
+    Email: Email,
+    Password: Password
 }

@@ -3,7 +3,7 @@ const controller = require('./../controller/userController');
 const appConfig = require('./../../config/appConfig');
 const auth = require('./../middleware/auth');
 
-let setRouter = (app) =>{
+let setRouter = (app) => {
     let baseUrl = `${appConfig.apiVersion}/users`
 
     //signup
@@ -81,7 +81,7 @@ let setRouter = (app) =>{
      * 
      */
 
-     // to get the country phone code
+    // to get the country phone code
     // country name required as input parameter
     app.post(`${baseUrl}/getCountryPhoneCode`, controller.getCountryPhoneCode);
     /**
@@ -308,8 +308,8 @@ let setRouter = (app) =>{
      * 
      */
 
-     //getAllUsers : get all the users using application
-     //params : authToken : requires authToken of the requester to be passed as a body, query or header parameter
+    //getAllUsers : get all the users using application
+    //params : authToken : requires authToken of the requester to be passed as a body, query or header parameter
     app.get(`${baseUrl}/getAllUsers`, auth.isAuthenticated, controller.getAllUsers)
 
     /**
@@ -362,7 +362,7 @@ let setRouter = (app) =>{
         }
      * 
      */
-    
+
     //logout : log out the user by deleting the user's authModel entry
     //params : authToken : requires authToken of the user logging out to be passed as a body, query or header parameter
     app.get(`${baseUrl}/logout`, auth.isAuthenticated, controller.logout)
@@ -402,5 +402,5 @@ let setRouter = (app) =>{
 
 
 module.exports = {
-    setRouter : setRouter
+    setRouter: setRouter
 }

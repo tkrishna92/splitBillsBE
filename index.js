@@ -24,7 +24,7 @@ const app = express();
 
 //using required modules and middlewares at app level
 app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({extended : false}));
+app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(helmet());
 app.use(appErrorHandler.appGlobalErrorHandler);
@@ -36,15 +36,15 @@ app.use(express.static(path.join(__dirname, 'client'))) // used for dev level te
 
 //model
 let modelPath = "./app/model";
-fs.readdirSync(modelPath).forEach(function(file){
-    if(~file.indexOf('.js')) require(modelPath+'/'+file);
+fs.readdirSync(modelPath).forEach(function (file) {
+    if (~file.indexOf('.js')) require(modelPath + '/' + file);
 });
 
 //route
 let routePath = "./app/route";
-fs.readdirSync(routePath).forEach(function(file){
-    if(~file.indexOf('.js')){
-        let route = require(routePath+'/'+file);
+fs.readdirSync(routePath).forEach(function (file) {
+    if (~file.indexOf('.js')) {
+        let route = require(routePath + '/' + file);
         route.setRouter(app);
     }
 })
@@ -59,52 +59,52 @@ const socketLib = require('./app/libs/socketLib');
 const socketServer = socketLib.setServer(server);
 
 //function for logging error on server
-function onError(error){
-    if(error.syscall !== 'listen'){
-        logger.error(error.code+' : not equal to listen', "serverOnErrorHandler", 10);
+function onError(error) {
+    if (error.syscall !== 'listen') {
+        logger.error(error.code + ' : not equal to listen', "serverOnErrorHandler", 10);
         throw error;
     }
-    switch(error.code){
-        case 'EACCES' : 
-            logger.error(error.code+' : elevated privileges required', 'serverOnErrorHandler', 10);
+    switch (error.code) {
+        case 'EACCES':
+            logger.error(error.code + ' : elevated privileges required', 'serverOnErrorHandler', 10);
             break;
-        case 'EADDRINUSE' :
-            logger.error(error.code+' : port already in use', "serverOnErrorHandler", 10);
+        case 'EADDRINUSE':
+            logger.error(error.code + ' : port already in use', "serverOnErrorHandler", 10);
             break;
-        default : 
-            logger.error(error.code+' : unknown error occurred', "serverOnErrorHandler", 10);
+        default:
+            logger.error(error.code + ' : unknown error occurred', "serverOnErrorHandler", 10);
             throw error;
     }
 }
 
 //function for loggin information on the server successfully listening on port
-function onListening(){
+function onListening() {
     var addr = server.address();
     var bind = typeof addr === 'string'
         ? 'pipe ' + addr
         : 'port ' + addr.port;
-        ('listening on ' + bind)
-        logger.info('server listening on port : ' + addr.port, "serverOnListeningHandler", 1);
-        let db = mongoose.connect(appConfig.db.uri, {useNewUrlParser : true, useUnifiedTopology : true, useCreateIndex : true, useFindAndModify : false})
+    ('listening on ' + bind)
+    logger.info('server listening on port : ' + addr.port, "serverOnListeningHandler", 1);
+    let db = mongoose.connect(appConfig.db.uri, { useNewUrlParser: true, useUnifiedTopology: true, useCreateIndex: true, useFindAndModify: false })
 }
 
-process.on('unhandledRejection', (reason, p)=>{
-    logger.error("unhandled rejection at promise : "+p + " reason : "+reason, "Applevel - unhandled exception handler", 9);
+process.on('unhandledRejection', (reason, p) => {
+    logger.error("unhandled rejection at promise : " + p + " reason : " + reason, "Applevel - unhandled exception handler", 9);
 })
 
 //mongoDB connection error handler
-mongoose.connection.on('error', (err)=>{
+mongoose.connection.on('error', (err) => {
     console.log("mongoDB connection failure");
     logger.error("mongoDB connection failure", "mongoose error handler - app level", 10);
 })
 
 //mongoDB connection on success handler
-mongoose.connection.on('open',(err)=>{
-    if(err){
+mongoose.connection.on('open', (err) => {
+    if (err) {
         console.log("error in connecting to DB");
         logger.error("error in connecting to DB", "mongoose connection success handler", 9);
-    }else{
+    } else {
         console.log("connection to mongodb success");
-        logger.info("connection to mongodb success", "mongoDB connection success handler",9);
+        logger.info("connection to mongodb success", "mongoDB connection success handler", 9);
     }
 })

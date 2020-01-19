@@ -2,20 +2,20 @@ const moment = require('moment');
 const momentTZ = require('moment-timezone');
 const timeZone = 'Asia/Calcutta';
 
-let timeNowUTC = ()=>{
+let timeNowUTC = () => {
     return moment().utc().format();
 }
 
-let getLocalTimeNow = () =>{
+let getLocalTimeNow = () => {
     return moment().format();
 }
 
-let convertTimeToLocal = (time)=>{
+let convertTimeToLocal = (time) => {
     return momentTZ().tz(timeZone).format('LLLL');
 }
 
 module.exports = {
-    timeNow : timeNowUTC,
-    localTimeNow : getLocalTimeNow,
-    convertTimeToLocal : convertTimeToLocal
+    timeNow: timeNowUTC,
+    localTimeNow: getLocalTimeNow,
+    convertTimeToLocal: convertTimeToLocal
 }
